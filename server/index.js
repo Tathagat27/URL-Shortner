@@ -1,8 +1,10 @@
 import express from "express";
+import path from 'path';
 import { router as urlRoute } from "./routes/url.js";
 import { connectToMongoDB } from "./connect.js";
 import * as dotenv from "dotenv";
 import { URL } from "./models/url.js";
+import { router as staticRouter } from "./routes/staticRouter.js";
 
 const app = express();
 
@@ -12,11 +14,17 @@ connectToMongoDB(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
+app.set("view engine","ejs");
+app.set("views", path.resolve("./views"));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.use("/url", urlRoute);
 
-app.get("/:shortId", async (req, res) => {
+app.use('/', staticRouter);
+
+app.get("/url/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
   const entry = await URL.findOneAndUpdate(
     {

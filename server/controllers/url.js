@@ -13,7 +13,10 @@ export const handleGenerateNewShortURL = async (req, res) => {
         visitHistory: [],
     })
 
-    return res.json({ id: shortId });
+    return res.render('home', {
+        id: shortId,
+    })
+    // return res.json({ id: shortId });
 }
 
 export const handleGetAnalytics = async (req, res) => {
