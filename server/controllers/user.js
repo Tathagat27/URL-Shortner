@@ -26,9 +26,9 @@ export const handleUserLogin = async (req, res) => {
     // setUser(sessionId, user);
 
     const token = setUser(user);
-    // res.cookie('uid', token);   // using cookie
+    res.cookie('token', token);   // using cookie
 
-    // return res.redirect('/');
+    return res.redirect('/');
 
-    return res.json({token});       // using response
+    // return res.json({token});       // using response
 }

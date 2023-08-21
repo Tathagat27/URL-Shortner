@@ -4,9 +4,14 @@ import { restrictTo } from "../middlewares/auth.js";
 
 export const router = express.Router();
 
-router.get('/', restrictTo(['NORMAL']), async (req, res) => {       // inline middleware
+router.get('/admin/urls', restrictTo(['ADMIN']), async (req, res) => {
+    const allUrls = await URL.find({});
+    return res.render('home',{
+        urls: allUrls,
+    })
+})
 
-    if(!req.user) return res.redirect('/login');
+router.get('/', restrictTo(['NORMAL', 'ADMIN']), async (req, res) => {       // inline middleware
 
     const allUrls = await URL.find({ createdBy: req.user._id });
     return res.render('home', {
