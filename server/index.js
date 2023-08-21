@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import { router as urlRoute } from "./routes/url.js";
 import { router as staticRoute } from "./routes/staticRouter.js";
 import { router as userRoute } from "./routes/user.js";
-import { checkAuth, restrictToLoggedInUserOnly } from "./middlewares/auth.js";
+import { checkForAuthentication, restrictTo } from "./middlewares/auth.js";
 
 const app = express();
 
@@ -23,10 +23,11 @@ app.set("views", path.resolve("./views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(checkForAuthentication);
 
-app.use("/url", restrictToLoggedInUserOnly, urlRoute);
+app.use("/url", restrictTo(['NORMAL']), urlRoute);
 app.use('/user', userRoute);
-app.use('/', checkAuth, staticRoute);
+app.use('/', staticRoute);
 
 
 app.listen(process.env.PORT, () => {

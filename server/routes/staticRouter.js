@@ -1,9 +1,10 @@
 import express from "express";
 import { URL } from "../models/url.js";
+import { restrictTo } from "../middlewares/auth.js";
 
 export const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.get('/', restrictTo(['NORMAL']), async (req, res) => {       // inline middleware
 
     if(!req.user) return res.redirect('/login');
 

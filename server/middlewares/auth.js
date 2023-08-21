@@ -1,39 +1,29 @@
 import { getUser } from "../service/auth.js";
 
-export const restrictToLoggedInUserOnly = async (req, res, next) => {
-    // const userUid = req.cookies?.uid;
+export const checkForAuthentication = (req, res, next) => {
+    const authorizatoinHeaderValue = req.headers["authorization"];
 
-    console.log("From RestrictLogged:", req.headers);
-    const userUid = req.headers["authorization"];
+    req.user = null;
 
-    if(!userUid) return res.redirect('/login');
+    if(!authorizatoinHeaderValue || !authorizatoinHeaderValue.startWith("Bearer")) return next();
 
-    const token = userUid.split("Bearer ")[1];
-
-    // const user = getUser(userUid);
+    const token = authorizatoinHeaderValue.split('Bearer ')[1];
 
     const user = getUser(token);
 
-    if(!user) return res.redirect('/login');
-
     req.user = user;
-    next();
+
+    return next();
+
+
 }
 
-export const checkAuth = async (req, res, next) => {
-    // const userUid = req.cookies?.uid;
+export const restrictTo = (roles) => {
+    return (req, res, next) => {
+        if(!req.user) return res.redirect('/login');
 
-    console.log("From checkAuth:", req.headers);
-    const userUid = req.headers["authorization"];
+        if(!roles.includes(req.user.role)) return res.end("UnAuthorized");
 
-
-    // const user = getUser(userUid);
-
-    const token = userUid.split("Bearer ")[1];
-
-    const user = getUser(token);
-
-    req.user = user;
-
-    next();
+        return next();
+    }
 }
