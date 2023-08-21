@@ -1,10 +1,13 @@
 import express from "express";
 import path from 'path';
-import { router as urlRoute } from "./routes/url.js";
 import { connectToMongoDB } from "./connect.js";
 import * as dotenv from "dotenv";
-import { URL } from "./models/url.js";
-import { router as staticRouter } from "./routes/staticRouter.js";
+import cookieParser from 'cookie-parser';
+
+import { router as urlRoute } from "./routes/url.js";
+import { router as staticRoute } from "./routes/staticRouter.js";
+import { router as userRoute } from "./routes/user.js";
+import { checkAuth, restrictToLoggedInUserOnly } from "./middlewares/auth.js";
 
 const app = express();
 
@@ -19,28 +22,12 @@ app.set("views", path.resolve("./views"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
-app.use("/url", urlRoute);
+app.use("/url", restrictToLoggedInUserOnly, urlRoute);
+app.use('/user', userRoute);
+app.use('/', checkAuth, staticRoute);
 
-app.use('/', staticRouter);
-
-app.get("/url/:shortId", async (req, res) => {
-  const shortId = req.params.shortId;
-  const entry = await URL.findOneAndUpdate(
-    {
-      shortId,
-    },
-    {
-      $push: {
-        visitHistory: {
-            timestamp: Date.now(),
-        }
-      },
-    }
-  );
-
-  res.redirect(entry.redirectURL);
-});
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on PORT ${process.env.PORT}`);
