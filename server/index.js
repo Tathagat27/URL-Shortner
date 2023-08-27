@@ -13,6 +13,8 @@ const app = express();
 
 dotenv.config();
 
+const PORT = process.env.PORT || 8001
+
 connectToMongoDB(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
@@ -30,6 +32,6 @@ app.use('/user', userRoute);
 app.use('/', staticRoute);
 
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server is running on PORT ${process.env.PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on PORT ${PORT}`);
 });
